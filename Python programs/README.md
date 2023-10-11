@@ -40,6 +40,8 @@ A simple minesweeper game
 ### Pathfinding program ###
 This is a pathfinding program that uses the A\* search algorithm to find the shortest path between two points on a grid.
 
+![Pathfinding Program in Action](./Python%20programs/vid/pathfinding_program.gif)
+
 #### How to use: ####
 1. Run the program.
 2. Click on a cell to mark where the path should begin (the cell will turn orange).
@@ -49,7 +51,7 @@ This is a pathfinding program that uses the A\* search algorithm to find the sho
 6. When the algorithm finishes, the shortest path will be highlighted in purple cells. If there is no path, a message informing about this will be displayed.
 
 
-The "clear" button erases the current grid.
+The "erase" button erases the current grid.
 The "random" button randomly arranges the cells on the grid.
 
 
