@@ -6,10 +6,12 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s- %(message)s')
 pygame.font.init()
 
-WIDTH, HEIGHT = 400, 600
+## setting up window size
+WIDTH, HEIGHT = 800, 800
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption('Tetris')
 
+## declaring colors
 BLACK = (0,0,0)
 BLUE = (0, 0, 255)
 ORANGE = (255, 165, 0)
@@ -23,19 +25,23 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 128, 0)
 
-CELL_SIZE = 19
+## setting up cell size
+CELL_SIZE = 39
 
 
+## setting up number of rows and collumns
 rows, collumns = HEIGHT//(CELL_SIZE+1), WIDTH//((CELL_SIZE+1)*2)
 
+## higher the number, program is slower
 SPEED = 200
 
+## declarying objects
 OBJECTS = ['straight', 'square', 'reverse_zigzag', 'zigzag', 'jocker', 'reverse_jocker', 'tee' ]
 
 ALL_OBJECTS = []
 
 
-
+## setting up starting position
 START_X = WIDTH*(3/4) + 1
 START_Y = HEIGHT*(2/3) + 1
 
@@ -62,7 +68,7 @@ class Object:
         self.type = type
         self.position_x, self.position_y = START_X, START_Y
 
-        # Define dictionary to store object properties
+        ## define dictionary to store object properties
         properties = {
             'straight': {'color': AQUA, 'shape': Shape(one=[1,0], two=[2,0], three=[-1,0]), 'pos_x': -CELL_SIZE - 1},
             'square': {'color': ORANGE, 'shape': Shape(one=[1,0], two=[1,-1], three=[0,-1]), 'pos_x': -CELL_SIZE - 1},
@@ -73,13 +79,13 @@ class Object:
             'tee': {'color': BLUE, 'shape': Shape(one=[1,0], two=[0,-1], three=[-1,0]), 'pos_x': 0}
         }
 
-        # Look up object properties from dictionary
+        ## look up object properties from dictionary
         object_properties = properties[type]
         self.color = object_properties['color']
         self.shape = object_properties['shape']
         self.position_x += object_properties['pos_x']
 
-        # Create object body
+        ## create object body
         self.body = [
             pygame.Rect(self.position_x, self.position_y, CELL_SIZE, CELL_SIZE),
             pygame.Rect(self.position_x + self.shape.one[0]*CELL_SIZE + self.shape.one[0],
@@ -90,9 +96,6 @@ class Object:
                         self.position_y + self.shape.three[1]*CELL_SIZE + self.shape.three[1], CELL_SIZE, CELL_SIZE)
         ]
 
-
-
-
     def check_if_can_rotate(self, new_pos_x, new_pos_y):
 
         if pygame.Rect(new_pos_x, new_pos_y, 19, 19) in ALL_OBJECTS:  ## checks if cell is already occupied by red one, if yes then do not rotate
@@ -101,12 +104,10 @@ class Object:
             return False
         if new_pos_y > HEIGHT:                                 ## checks if is near edge (upper)
             return False
-        return True                                              
-
-
-
-
-    def rotate(self):  ## function that rotates an object
+        return True    
+                                              
+    ## function that rotates an object
+    def rotate(self): 
         if self.type != 'square':
             save_pos = copy.deepcopy(self.body)
             for cell in self.body[1:4]:
@@ -200,7 +201,7 @@ class Shape:
     two: list[int]
     three: list[int]
 
-## Draws grid
+## draws grid
 def grid():
     
     x = 0
@@ -212,7 +213,7 @@ def grid():
         y += (CELL_SIZE+1)
         pygame.draw.line(screen, (WHITE), (0,y), (WIDTH/2,y))
 
-## Draws board
+## draws board
 def draw_board(object, second_object, third_object, myfont, POINTS):
     screen.fill(BLACK)
     grid()
@@ -228,13 +229,13 @@ def draw_board(object, second_object, third_object, myfont, POINTS):
 
     pygame.display.update()
 
-## Creates a random object 
+## creates a random object 
 def draw_object():
     which_object = random.choice(OBJECTS)
     return Object(which_object)
 
 
-## When there is a row of all red block, it disappears and every cell above goes down and player gets a score
+## when there is a row of all red block, it disappears and every cell above goes down and player gets a score
 def check_if_score(object, second_object, third_object, myfont, POINTS, VELOCITY):
     for yy in range(HEIGHT//(CELL_SIZE+1) - 1,1,-1):
             if all(screen.get_at((x*(CELL_SIZE+1)+1,(yy)*(CELL_SIZE+1)+1)) == RED  for x in range((WIDTH//2)//(CELL_SIZE+1))):
@@ -252,7 +253,7 @@ def check_if_score(object, second_object, third_object, myfont, POINTS, VELOCITY
                 POINTS += 1
     return pygame.time.get_ticks() - VELOCITY, VELOCITY, POINTS
                 
-## Checks if player lost. Player loses when red objects touch top of the screen
+## checks if player lost. Player loses when red objects touch top of the screen
 def check_if_lose(myBiggerFont):
     for cell in ALL_OBJECTS:
         if cell.y <= CELL_SIZE:
@@ -264,7 +265,7 @@ def check_if_lose(myBiggerFont):
     
 
 
-## Responsible for moving current object down every loop
+## responsible for moving current object down every loop
 def move_down(object, second_object, third_object):
     if all(cell.y < HEIGHT - (CELL_SIZE + 1) for cell in object.body) and all(RED != screen.get_at((cell.x, cell.y + (CELL_SIZE + 1))) for cell in object.body): 
         for cell in object.body:
@@ -284,20 +285,20 @@ def move_down(object, second_object, third_object):
         third_object = draw_object()
         return object, second_object, third_object
 
-## Moves object to the left  
+## moves object to the left  
 def move_left(object):
     if all(cell.x > 1 for cell in object.body) and all(RED != screen.get_at((cell.x - CELL_SIZE, cell.y)) for cell in object.body):    ## if there is red not move
         for cell in object.body:
             cell.x -= (CELL_SIZE + 1)
 
-## Moves object to the right  
+## moves object to the right  
 def move_right(object):
     if all(cell.x < WIDTH//2 - CELL_SIZE for cell in object.body) and all(RED != screen.get_at((cell.x + 2*CELL_SIZE, cell.y)) for cell in object.body):  ## if there is red not move
         for cell in object.body:
             cell.x += (CELL_SIZE + 1)
 
 
-## Moves object immediately down
+## moves object immediately down
 def move_whole_down(object):
     while all(cell.y < HEIGHT - 2 * CELL_SIZE for cell in object.body) and all(RED != screen.get_at((cell.x, cell.y + 2 * CELL_SIZE)) for cell in object.body):
         for cell in object.body:
@@ -305,7 +306,7 @@ def move_whole_down(object):
             
 
 
-## Function that handles all events
+## function that handles all events
 def tetris_events(object, Pause, myBiggerFont):
 
     for event in pygame.event.get():
@@ -331,9 +332,6 @@ def tetris_events(object, Pause, myBiggerFont):
 
     return Pause    
 
-
-
-        
 
 def main():
     global ALL_OBJECTS

@@ -3,6 +3,7 @@ import os
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 
+## superclass 
 class Figure():
     def __init__(self, pos_x, pos_y, color, symbol) -> None:
         self.pos_x = pos_x
@@ -51,6 +52,7 @@ class Figure():
             pass
         return where_can_move
 
+## Pawn subclass
 class Pawn(Figure):
     def __init__(self, pos_x, pos_y, color, symbol):
         super().__init__(pos_x, pos_y, color, symbol)
@@ -88,6 +90,7 @@ class Pawn(Figure):
 
         
 
+## Knight subclass
 class Knight(Figure):
     def __init__(self, pos_x, pos_y, color, symbol):
         super().__init__(pos_x, pos_y, color, symbol)
@@ -119,6 +122,7 @@ class Knight(Figure):
         return where_can_move
 
 
+## Bishop subclass
 class Bishop(Figure):
     def __init__(self, pos_x, pos_y, color, symbol):
         super().__init__(pos_x, pos_y, color, symbol)
@@ -133,6 +137,7 @@ class Bishop(Figure):
         return where_can_move
 
 
+## Rook subclass
 class Rook(Figure):
     def __init__(self, pos_x, pos_y, color, symbol):
         super().__init__(pos_x, pos_y, color, symbol)
@@ -148,6 +153,7 @@ class Rook(Figure):
         return where_can_move
 
 
+## Queen subclass
 class Queen(Figure):
     def __init__(self, pos_x, pos_y, color, symbol):
         super().__init__(pos_x, pos_y, color, symbol)
@@ -162,6 +168,7 @@ class Queen(Figure):
         return where_can_move
     
 
+## King subclass
 class King(Figure):
     def __init__(self, pos_x, pos_y, color, symbol):
         super().__init__(pos_x, pos_y, color, symbol)

@@ -12,6 +12,8 @@ To install and run the project, follow these steps:
 Chess is a classic two-player strategy board game. 
 The objective of the game is to checkmate the opponent's king by placing it under an inescapable threat of capture.
 
+![Chess in Action](https://github.com/Kokoszsz/Python-programs/blob/main/vid/chess.gif)
+
 #### To play chess: ####
 1. Run chess_main.py.
 2. The game will begin with the white player's turn. To move a piece, click on it with the left mouse button.
@@ -70,6 +72,8 @@ The game ends when the snake collides with itself or with a wall.
 
 ### Tetris ###
 A simple tetris game
+
+![Tetris in Action](https://github.com/Kokoszsz/Python-programs/blob/main/vid/tetris.gif)
 
 #### To play the game: ####
 1. Run the program.

@@ -1,7 +1,7 @@
 import pygame, copy
 from chess_figures import Pawn, Knight, Bishop, Rook, Queen, King
 
-# Define some colors
+## declaring colors
 GRAY = (128, 128, 128)
 WHITE = (255, 255, 255)
 DARK_GREEN = (0, 153, 0)
@@ -9,29 +9,25 @@ RED = (204, 0, 0)
 YELLOW = (255, 255, 0)
 ORANGE = (255, 128, 0)
 
-# This sets the WIDTH and HEIGHT of each grid location
+## size of every cell
 WIDTH = 100
 HEIGHT = 100
 
-# Initialize Pygame
 pygame.init()
 
-# Set the HEIGHT and WIDTH of the screen
+## HEIGHT and WIDTH of the screen
 WINDOW_SIZE = [800, 800]
 screen = pygame.display.set_mode(WINDOW_SIZE)
 
-# Set the title of the window
 pygame.display.set_caption("Chessboard")
 
-
-# Used to manage how fast the screen updates
 clock = pygame.time.Clock()
 
-## position - [y,x]
-## lowercase letters are black, uppercase are white
+## position - [x,y]
+## lowercase letters represent black figures, uppercase letters represent white figures
 
 
-## Create list of figures in figures
+## creates list of figures
 def create_figures(board):
     figures = []
     for y, line in enumerate(board):
@@ -63,7 +59,7 @@ def create_figures(board):
 
     return figures
 
-## Clears the board
+## clears the board
 def erase_grid(check):
     grid = []
     for row in range(8):
@@ -85,9 +81,8 @@ def erase_grid(check):
     return grid
 
       
-
+## creates the chessboard pattern
 def draw_board(figures, grid):
-    ## Create the chessboard pattern
     for row in range(8):
         for column in range(8):
 
@@ -104,7 +99,7 @@ def draw_board(figures, grid):
         screen.blit(figure.object_image, (figure.figure_rect.x + 10, figure.figure_rect.y + 10))
 
 
-## Higlights where selected figure can move and if it's occupied by an enemy
+## higlights where selected figure can move and if it's occupied by an enemy
 def highlight_moves(movable_positions, grid, board):
     for pos in movable_positions:
         if board[pos[0]][pos[1]] in 'hmtqkpHMTQKP':
@@ -113,11 +108,11 @@ def highlight_moves(movable_positions, grid, board):
             grid[pos[0]][pos[1]] = DARK_GREEN
     pass
 
-## Higlights the sellected figure 
+## higlights the sellected figure 
 def highlight_selected_figure(figure_picked, grid):
     grid[figure_picked.pos_y][figure_picked.pos_x] = YELLOW
 
-## Selects a particular figure on a board
+## selects a particular figure on a board
 def get_figure(figures, mouse_pos, player):
     for figure in figures:
         if figure.figure_rect.x <= mouse_pos[0] and figure.figure_rect.x + WIDTH >= mouse_pos[0] and figure.figure_rect.y <= mouse_pos[1] and figure.figure_rect.y + HEIGHT >= mouse_pos[1]:
@@ -126,15 +121,14 @@ def get_figure(figures, mouse_pos, player):
             else:
                 return None
     return None
-## Checks if position where we want figure to go is valid (figure can go there)
+## checks if position where we want figure to go is valid (figure can go there)
 def is_valid_move(movable_positions, new_x_pos, new_y_pos):
     our_pos = [new_y_pos, new_x_pos]
     if our_pos in movable_positions:
         return True
     return False
 
-
-## Responsible for killing an enemy 
+## responsible for killing an enemy 
 def remove_captured_figure(figures, x_pos, y_pos, player_turn):
     for index, figure in enumerate(figures):
         if figure.pos_x == x_pos and figure.pos_y == y_pos:
@@ -143,7 +137,7 @@ def remove_captured_figure(figures, x_pos, y_pos, player_turn):
                 return figures
     return figures
 
-## Checks if player's king will be under attack if player moves his figure (figure_picked)
+## checks if player's king will be under attack if player moves his figure (figure_picked)
 def is_our_king_in_check(position, figure_picked, board, player_turn, figures):
 
     local_board = copy.deepcopy(board)
@@ -166,7 +160,7 @@ def is_our_king_in_check(position, figure_picked, board, player_turn, figures):
                             return True
     return False
 
-## Check if moving somewhere will cause own king to be under check
+## checks if moving somewhere will cause player's own king to be under check
 def movable_positions_without_check(movable_positions, figure_picked, board, player, figures):
     new_movable_positions = []
     for position in movable_positions:
@@ -175,14 +169,14 @@ def movable_positions_without_check(movable_positions, figure_picked, board, pla
 
     return new_movable_positions
 
-## Get positions where picked figure can move
+## gets positions where picked figure can move
 def get_movable_positions(board, figure_picked, player_turn, figures):   
     movable_positions = figure_picked.check_if_can_move(board)
     movable_positions = movable_positions_without_check(movable_positions, figure_picked, board, player_turn, figures)
 
     return movable_positions
 
-## Check if enemy king is under check
+## checks if enemy king is under check
 def check_if_enemy_under_check(board, player_turn, figures, grid, check):
     for figure in figures:
         if figure.color == player_turn:
@@ -200,7 +194,7 @@ def check_if_enemy_under_check(board, player_turn, figures, grid, check):
     check = None
     return grid, check
 
-## Check if anny figure of a current player has an option to move
+## checks if anny figure of a current player has an option to move
 def check_if_no_more_moves(figures, player, board):
     for figure in figures:
         if figure.color == player:
@@ -209,6 +203,7 @@ def check_if_no_more_moves(figures, player, board):
                 return False
     return True
 
+## 
 def change_rook_position_when_castling(player_turn, new_x_pos, new_y_pos, figures, figure_picked, board):
     if player_turn == 'white':
         if new_y_pos == 7 and new_x_pos == 1:
@@ -223,7 +218,7 @@ def change_rook_position_when_castling(player_turn, new_x_pos, new_y_pos, figure
 
     return board, figures
 
-
+##
 def move_rook_castling(y_pos, old_x_pos, new_x_pos, figures, board):
     board[y_pos][old_x_pos] = '0'
     board[y_pos][new_x_pos] = 'T' if y_pos == 7 else 't'
@@ -260,7 +255,7 @@ def main():
     grid = erase_grid(check)
 
     while not done:
-        # --- Main event loop
+        ## --- Main event loop
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
@@ -285,7 +280,7 @@ def main():
                     if is_valid_move(movable_positions, new_x_pos, new_y_pos):
 
                         
-                        ### responsible for dealing with castling
+                        #### responsible for dealing with castling
                         if isinstance(figure_picked, King):
                             if figure_picked.castling == False:
                                 board, figures = change_rook_position_when_castling(player_turn, new_x_pos, new_y_pos, figures, figure_picked, board)
@@ -336,10 +331,10 @@ def main():
 
         pygame.display.flip()
 
-        # --- Limit to 60 frames per second
+        ## --- Limit to 60 frames per second
         clock.tick(60)
 
-    # Close the window and quit.
+    ## Close the window and quit.
     pygame.quit()
 
 if __name__ == '__main__':
