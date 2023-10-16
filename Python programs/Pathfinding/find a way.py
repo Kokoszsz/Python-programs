@@ -19,7 +19,7 @@ ORANGE = (255,128,0)
 
 MY_FONT = pygame.font.SysFont("monospace", 12)
 
-FPS = 200
+FPS = 60
 
 ALL_COLORS = [] 
 

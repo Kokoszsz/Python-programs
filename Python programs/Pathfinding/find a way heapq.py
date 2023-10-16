@@ -22,9 +22,6 @@ MY_FONT = pygame.font.SysFont("monospace", 12)
 
 FPS = 60
 
-## higher the number, program is slower
-SPEED = 12 
-
 ALL_COLORS = [] 
 
 ## size of rect
@@ -238,13 +235,12 @@ def find_a_way(start_pos, end_pos, grid):
     heapq.heappush(Open, Node(start_pos, 0, 0, estimate_distance_f(start_pos,end_pos))) ## position, current cost, parent element, estimate cost
     Closed = set()
     node_lookup = {}
+    clock = pygame.time.Clock()
     while Open:
+        clock.tick(FPS)
+
         ## sets Current node. Node with lowest cost is chosen
         Current = heapq.heappop(Open)
-
-
-        ## pauses program, thx to this, algorithm is slower and more visible
-        pygame.time.delay(SPEED) 
         
         ## checks for all neighbouring cells of Current
         new_open_pos = check_neighbour(Current, grid)
