@@ -10,5 +10,5 @@ A few short programs written in Python
 
 For more information go to [Python programs](./Python%20programs)
 
-
-![Also My Leetcode Stats](https://leetcard.jacoblin.cool/Kokosz?ext=activity&theme=unicorn)
+### Also My Leetcode Stats ###
+![](https://leetcard.jacoblin.cool/Kokosz?ext=activity&theme=unicorn)

@@ -1,5 +1,6 @@
 import pygame
 import random
+import heapq
 pygame.font.init()
 
 
@@ -19,7 +20,10 @@ ORANGE = (255,128,0)
 
 MY_FONT = pygame.font.SysFont("monospace", 12)
 
-FPS = 200
+FPS = 60
+
+## higher the number, program is slower
+SPEED = 12 
 
 ALL_COLORS = [] 
 
@@ -101,7 +105,7 @@ def draw_window(all_colors, grid, random_block, clear_block, erease_block, end_p
     for i in range(COLS):
         pygame.draw.line(screen, BLACK, (i*BLOCK_SIZE,0), (i*BLOCK_SIZE,ROWS * BLOCK_SIZE), width=1)  ### if you want lines
 
-    if not end_point_node:
+    if not end_point_node :
         this_font = pygame.font.SysFont("arialblack", 25)
         text_clear = this_font.render('NO WAY TO GET TO THIS POINT', 1, (0, 0, 0,))                          
         screen.blit(text_clear, (WIDTH//3, (HEIGHT - BOTTOM_PANEL_HEIGHT//2 - BOTTOM_PANEL_HEIGHT//8)))
@@ -197,17 +201,6 @@ def insert(row, col, grid, start_chosen, end_chosen, drawing_color, start_pos, e
 def estimate_distance_f(point, end):
     return abs(point[0] - end[0]) + abs(point[1] - end[1])
 
-## sets one of nodes as current from those that are Open(those green) (the one with lowest cost is set as current)
-def set_current_and_remove_from_open(Open):
-    
-    current = Open[0]
-    for pos in Open[1:]:
-        if pos.current_cost + pos.estimate_distance < current.current_cost + current.estimate_distance:
-            current = pos
-
-    Open.remove(current)
-    return current
-
 ## checks and return all neighbours of current
 def check_neighbour(Current, grid):
     for_open_pos = []
@@ -223,13 +216,14 @@ def check_neighbour(Current, grid):
     return for_open_pos  
 
 
-## if node is alread in node_lookup or node that has same position has lower cost that new node, then new node is added to node_lookup and to Open
+## if node with same position as new_open is already in Closed or Open and its cost is bigger then cost of new_open node, it is beeing removed.
+## else new_open is added to Open(those green)
 def check_cheaper_way(new_pos, end_pos, Open, node_lookup, grid, Current):
 
     if new_pos not in node_lookup or Current.current_cost+1 < node_lookup[new_pos].current_cost:
         new_node = Node(new_pos, Current.current_cost+1, Current, estimate_distance_f(new_pos, end_pos))
         node_lookup[new_pos] = new_node
-        Open.append(new_node)
+        heapq.heappush(Open, new_node)
         grid[new_pos[1]][new_pos[0]] = GREEN
         pygame.draw.rect(screen, grid[new_pos[1]][new_pos[0]], (new_pos[0]*BLOCK_SIZE+1,new_pos[1]*BLOCK_SIZE+1,BLOCK_SIZE-1,BLOCK_SIZE-1))
         return Open, node_lookup, grid
@@ -240,16 +234,18 @@ def check_cheaper_way(new_pos, end_pos, Open, node_lookup, grid, Current):
 
 ## tries to find shortest path from starting point to end point
 def find_a_way(start_pos, end_pos, grid):
-    Open = [Node(start_pos, 0, 0, estimate_distance_f(start_pos,end_pos))] ## position, current cost, parent element, estimate cost 
+    Open = []  
+    heapq.heappush(Open, Node(start_pos, 0, 0, estimate_distance_f(start_pos,end_pos))) ## position, current cost, parent element, estimate cost
     Closed = set()
     node_lookup = {}
-    clock = pygame.time.Clock()
     while Open:
-        clock.tick(FPS)
-
         ## sets Current node. Node with lowest cost is chosen
-        Current = set_current_and_remove_from_open(Open)
+        Current = heapq.heappop(Open)
 
+
+        ## pauses program, thx to this, algorithm is slower and more visible
+        pygame.time.delay(SPEED) 
+        
         ## checks for all neighbouring cells of Current
         new_open_pos = check_neighbour(Current, grid)
         
@@ -273,6 +269,7 @@ def find_a_way(start_pos, end_pos, grid):
         
         ## draws Current rect
         pygame.draw.rect(screen, grid[Current.position[1]][Current.position[0]], (Current.position[0]*BLOCK_SIZE+1,Current.position[1]*BLOCK_SIZE+1,BLOCK_SIZE-1,BLOCK_SIZE-1))
+
 
         pygame.display.update()
 
@@ -312,8 +309,9 @@ def main():
     end_point_node = 'nothing for now'
 
 
-    run = True
+
     clock = pygame.time.Clock()
+    run = True
     while run:
         clock.tick(FPS)
         for event in pygame.event.get():
@@ -323,24 +321,24 @@ def main():
                 run = False
             elif pygame.mouse.get_pressed()[0]:
                 m_pos = pygame.mouse.get_pos()
-                if m_pos[0] > 0 and m_pos[0] < WIDTH and m_pos[1] > 0 and m_pos[1] < HEIGHT: 
-                    try:
-                        row, col = get_grid_pos(m_pos)
-                        drawing_color = change_color(m_pos, drawing_color)
-                        x,y = m_pos
+                try:
+                    row, col = get_grid_pos(m_pos)
+                    drawing_color = change_color(m_pos, drawing_color)
+                    x,y = m_pos
 
-                        if x >= random_block.x and x <= random_block.x + OPTION_RECT_SIZE and y >= random_block.y and y <= random_block.y + OPTION_RECT_SIZE:
-                            grid, start_pos, end_pos = random_maze(grid)
-                            start_chosen, end_chosen = True, True
-                        elif x >= clear_block.x and x <= clear_block.x + OPTION_RECT_SIZE and y >= clear_block.y and y <= clear_block.y + OPTION_RECT_SIZE:
-                            grid = clear_path(grid)
-                            start_chosen, end_chosen = True, True
-                        elif x >= erase_block.x and x <= erase_block.x + OPTION_RECT_SIZE and y >= erase_block.y and y <= erase_block.y + OPTION_RECT_SIZE:
-                            grid, start_chosen, end_chosen = erase(grid, start_chosen, end_chosen)
-                        end_point_node = True
-                        start_chosen, end_chosen, start_pos, end_pos, grid = insert(row, col, grid, start_chosen, end_chosen, drawing_color, start_pos, end_pos)
-                    except IndexError:
-                        print(m_pos)
+                    if x >= random_block.x and x <= random_block.x + OPTION_RECT_SIZE and y >= random_block.y and y <= random_block.y + OPTION_RECT_SIZE:
+                        grid, start_pos, end_pos = random_maze(grid)
+                        start_chosen, end_chosen = True, True
+                    elif x >= clear_block.x and x <= clear_block.x + OPTION_RECT_SIZE and y >= clear_block.y and y <= clear_block.y + OPTION_RECT_SIZE:
+                        grid = clear_path(grid)
+                        start_chosen, end_chosen = True, True
+                    elif x >= erase_block.x and x <= erase_block.x + OPTION_RECT_SIZE and y >= erase_block.y and y <= erase_block.y + OPTION_RECT_SIZE:
+                        grid, start_chosen, end_chosen = erase(grid, start_chosen, end_chosen)
+                        
+                    end_point_node = True
+                    start_chosen, end_chosen, start_pos, end_pos, grid = insert(row, col, grid, start_chosen, end_chosen, drawing_color, start_pos, end_pos)
+
+                except IndexError:
                         pass
             elif event.type == pygame.KEYDOWN:
                 if start_chosen is True and end_chosen is True:

@@ -42,7 +42,10 @@ A simple minesweeper game
 ### Pathfinding program ###
 This is a pathfinding program that uses the A\* search algorithm to find the shortest path between two points on a grid.
 
-![Pathfinding Program in Action](https://github.com/Kokoszsz/Python-programs/blob/main/vid/pathfinding_program.gif)
+| Pathfinding Program             																						 | Pathfinding Program (using Heap queue)                  																 |
+| ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| ![Pathfinding Program in Action](https://github.com/Kokoszsz/Python-programs/blob/main/vid/pathfinding_program.gif)    |  |
+
 
 #### How to use: ####
 1. Run the program.
