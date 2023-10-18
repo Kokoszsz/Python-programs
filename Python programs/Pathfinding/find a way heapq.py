@@ -136,13 +136,13 @@ def change_color(mouse_position, drawing_color):
             drawing_color = colors.color
     return drawing_color
 
-## clears board
-def erase(grid, start_chosen, end_chosen):
+def erase(grid, start_chosen, end_chosen, start_pos, end_pos):
     for i in range(ROWS):
         for j in range(COLS):
             grid[i][j] = WHITE
     start_chosen, end_chosen = False, False
-    return grid, start_chosen, end_chosen
+    start_pos, end_pos = None, None
+    return grid, start_chosen, end_chosen, start_pos, end_pos
 
 ## clears current path 
 def clear_path(grid):
@@ -213,8 +213,7 @@ def check_neighbour(Current, grid):
     return for_open_pos  
 
 
-## if node with same position as new_open is already in Closed or Open and its cost is bigger then cost of new_open node, it is beeing removed.
-## else new_open is added to Open(those green)
+## if node is already in node_lookup or node that has same position has lower cost that new node, then new node is added to node_lookup and to Open
 def check_cheaper_way(new_pos, end_pos, Open, node_lookup, grid, Current):
 
     if new_pos not in node_lookup or Current.current_cost+1 < node_lookup[new_pos].current_cost:
@@ -285,15 +284,19 @@ def main():
 
     x = OPTION_RECT_SIZE 
     y = HEIGHT - BOTTOM_PANEL_HEIGHT//1.2
+
+    
     for color in BLOCK_COLORS:
         ALL_COLORS.append(ColorBlock(x,y,color))
         x += OPTION_RECT_SIZE*1.5
-
+    
+    ## creating option blocks
     random_block = pygame.Rect(OPTION_RECT_SIZE, HEIGHT - BOTTOM_PANEL_HEIGHT//2, OPTION_RECT_SIZE, OPTION_RECT_SIZE)
     clear_block = pygame.Rect(OPTION_RECT_SIZE * 2.5, HEIGHT - BOTTOM_PANEL_HEIGHT//2, OPTION_RECT_SIZE, OPTION_RECT_SIZE)
     erase_block = pygame.Rect(OPTION_RECT_SIZE * 4, HEIGHT - BOTTOM_PANEL_HEIGHT//2, OPTION_RECT_SIZE, OPTION_RECT_SIZE)
-    drawing_color = BLACK
 
+
+    drawing_color = BLACK
     grid = init_grid(BG_COLOR)
 
     start_chosen = False
@@ -305,23 +308,32 @@ def main():
     end_point_node = 'nothing for now'
 
 
-
     clock = pygame.time.Clock()
     run = True
+
+    ## main program loop
     while run:
         clock.tick(FPS)
         for event in pygame.event.get():
+            ## funtion draws all elements
             draw_window(ALL_COLORS, grid, random_block, clear_block, erase_block, end_point_node)
 
+            ## to quit program
             if event.type == pygame.QUIT:
                 run = False
+            
+            ## gets position where user clicked
             elif pygame.mouse.get_pressed()[0]:
                 m_pos = pygame.mouse.get_pos()
                 try:
+                    ## gets row and collumn where user clicked
                     row, col = get_grid_pos(m_pos)
-                    drawing_color = change_color(m_pos, drawing_color)
-                    x,y = m_pos
 
+                    ## changes color to one selected by user
+                    drawing_color = change_color(m_pos, drawing_color)
+                    x, y = m_pos
+
+                    ## checks if any option block was clicked
                     if x >= random_block.x and x <= random_block.x + OPTION_RECT_SIZE and y >= random_block.y and y <= random_block.y + OPTION_RECT_SIZE:
                         grid, start_pos, end_pos = random_maze(grid)
                         start_chosen, end_chosen = True, True
@@ -329,7 +341,7 @@ def main():
                         grid = clear_path(grid)
                         start_chosen, end_chosen = True, True
                     elif x >= erase_block.x and x <= erase_block.x + OPTION_RECT_SIZE and y >= erase_block.y and y <= erase_block.y + OPTION_RECT_SIZE:
-                        grid, start_chosen, end_chosen = erase(grid, start_chosen, end_chosen)
+                        grid, start_chosen, end_chosen, start_pos, end_pos = erase(grid, start_chosen, end_chosen, start_pos, end_pos)
                         
                     end_point_node = True
                     start_chosen, end_chosen, start_pos, end_pos, grid = insert(row, col, grid, start_chosen, end_chosen, drawing_color, start_pos, end_pos)
@@ -337,14 +349,15 @@ def main():
                 except IndexError:
                         pass
             elif event.type == pygame.KEYDOWN:
-                if start_chosen is True and end_chosen is True:
-                    if event.key == pygame.K_SPACE:
-                        end_point_node, grid = find_a_way(start_pos, end_pos, grid) 
-
-                        if end_point_node is not None:
-                            show_proper_way(end_point_node, grid)
-                            grid[end_pos[1]][end_pos[0]] = BLUE
-                            grid[start_pos[1]][start_pos[0]] = ORANGE
+                ## when user clicked space and starting point and ending point are set
+                if event.key == pygame.K_SPACE and start_chosen is True and end_chosen is True:
+                    ## runs pathfinding alghoritm
+                    end_point_node, grid = find_a_way(start_pos, end_pos, grid) 
+                    ## if path was found it is shown
+                    if end_point_node is not None:
+                        show_proper_way(end_point_node, grid)
+                        grid[end_pos[1]][end_pos[0]] = BLUE
+                        grid[start_pos[1]][start_pos[0]] = ORANGE
 
                     
     pygame.quit()
